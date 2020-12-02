@@ -1,4 +1,5 @@
 use std::env; // to get arugments passed to the program
+use std::thread; // to include threads in the program
 
 /*
 * Print the number of partitions and the size of each partition
@@ -28,7 +29,6 @@ fn generate_data(num_elements: usize) -> Vec<usize>{
 * Partition the data in the vector v into 2 vectors
 * @param v Vector of integers
 * @return A vector that contains 2 vectors of integers
-
 */
 fn partition_data_in_two(v: &Vec<usize>) -> Vec<Vec<usize>>{
     let partition_size = v.len() / 2;
@@ -123,8 +123,14 @@ fn main() {
 
     // Change the following code to create 2 threads that run concurrently and each of which uses map_data() function to process one of the two partitions
 
-    intermediate_sums.push(map_data(&xs[0]));
-    intermediate_sums.push(map_data(&xs[1]));
+    let handle_1 = thread::spawn( || map_data(&xs[0]));
+    let handle_2 = thread::spawn( || map_data(&xs[1]));
+    let res_1 = handle_1.join().unwrap();
+    let res_2 = handle_2.join().unwrap();
+
+    intermediate_sums.push(res_1);
+    intermediate_sums.push(res_2);
+
 
     // CHANGE CODE END: Don't change any code below this line until the next CHANGE CODE comment
 
