@@ -123,14 +123,21 @@ fn main() {
 
     // Change the following code to create 2 threads that run concurrently and each of which uses map_data() function to process one of the two partitions
 
-    let handle_1 = thread::spawn( || map_data(&xs[0]));
-    let handle_2 = thread::spawn( || map_data(&xs[1]));
+    // Compiler gets mad if we access the data directly in a closure so we make copies of each.
+    let val_1 = xs[0].clone(); 
+    let val_2 = xs[1].clone();
+
+    // Create threads and call map data on our copied values in a move closure
+    let handle_1 = thread::spawn( move || map_data(&val_1));
+    let handle_2 = thread::spawn( move || map_data(&val_2));
+
+    // Once the threads join we call unwrap on them to retrieve the result. 
     let res_1 = handle_1.join().unwrap();
     let res_2 = handle_2.join().unwrap();
 
+    // Add the responses to the intermediate_sums vector. 
     intermediate_sums.push(res_1);
     intermediate_sums.push(res_2);
-
 
     // CHANGE CODE END: Don't change any code below this line until the next CHANGE CODE comment
 
@@ -166,7 +173,8 @@ fn main() {
 * @return A vector that contains vectors of integers
 * 
 */
-fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>>{
+/*fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>>{
     // Remove the following line which has been added to remove a compiler error
     partition_data_in_two(v)
 }
+*/
