@@ -181,49 +181,51 @@ fn main() {
 fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>> {
 
     // get the total count of data points once so we don't waste time getting it over and over.
-    let mut data_size = v.len();
+    let mut remaining_data = v.len();
 
     // Create a vector that will contain vectors of integers
     let mut xs: Vec<Vec<usize>> = Vec::new();
 
     // Calculate partition_size by dividing num_paritions 
-    let partition_size = data_size / num_partitions;
+    let partition_size = remaining_data / num_partitions;
     
     // have to track the index for the number of items we've added from the data set
     let mut added_index = 0;
+    let mut i = 0;
     let mut single_partition_size;
 
     for _num in 0..num_partitions {
+
 	    let mut tmp : Vec<usize> = Vec::new();
         // set our single_partition_size each time.
         single_partition_size = partition_size;
 
         // If there's a remainder we add one. We do this every time until we no longer have a remainder. 
-        if data_size % partition_size != 0 {
+        if remaining_data % partition_size != 0 {
 
             //usize is basically an unsigned int, so it won't maintain the float. 
             single_partition_size += 1; 
         } 
-        println!("Partition_size = {}", single_partition_size);
         
-        // track the data_size so we can continue to check whether we need to add one or not.
-        data_size = data_size - single_partition_size;
-
-        // i starts at whatever number array index is and then we have to control the index on the upper end.
-        for i in added_index..single_partition_size {
-            tmp.push(v[i]);
-            println!("I = {}", i);
-        }
+        // track the remaining data so we can continue to check whether we need to add one or not.
+        remaining_data -= single_partition_size;
 
         // Track our total index size, since we start at zero we adjust the index
         added_index += single_partition_size;
 
+        // i starts at whatever number array index is and then we have to control the index on the upper end.
+        while i < added_index {
+            tmp.push(v[i]);
+
+            i += 1;
+        }
 
         // If it's our first run we subtract one
         if added_index == single_partition_size {
             added_index -= 1;
+            i -= 1;
         }
-        println!("added_index = {}", added_index);
+
         // Add the tmp vec to xs, our total vec
         xs.push(tmp);
     }
