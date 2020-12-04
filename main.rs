@@ -194,33 +194,36 @@ fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>> {
     let mut i = 0;
     let mut single_partition_size;
 
+    // For loop that executes for as many partitions as we have.
     for _num in 0..num_partitions {
 
-	    let mut tmp : Vec<usize> = Vec::new();
+        // Create a new Vec to place data in.
+        let mut tmp : Vec<usize> = Vec::new();
+        
         // set our single_partition_size each time.
         single_partition_size = partition_size;
 
         // If there's a remainder we add one. We do this every time until we no longer have a remainder. 
         if remaining_data % partition_size != 0 {
 
-            //usize is basically an unsigned int, so it won't maintain the float. 
+            //usize is basically an unsigned int, so we don't worry about a remainder. 
             single_partition_size += 1; 
         } 
         
         // track the remaining data so we can continue to check whether we need to add one or not.
         remaining_data -= single_partition_size;
 
-        // Track our total index size, since we start at zero we adjust the index
+        // Track our total added index size, since we start at zero we adjust the index
         added_index += single_partition_size;
 
-        // i starts at whatever number array index is and then we have to control the index on the upper end.
+        // i starts at whatever number i is and goes until it hits the added index.
         while i < added_index {
             tmp.push(v[i]);
 
             i += 1;
         }
 
-        // If it's our first run we subtract one
+        // If it's our first run we subtract one from i and added_index.
         if added_index == single_partition_size {
             added_index -= 1;
             i -= 1;
@@ -229,5 +232,7 @@ fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>> {
         // Add the tmp vec to xs, our total vec
         xs.push(tmp);
     }
+    
+    // Return our Vec of Vecs.
     xs
 }
