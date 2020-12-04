@@ -192,15 +192,14 @@ fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>> {
     // have to track the index for the number of items we've added from the data set
     let mut added_index = 0;
     let mut single_partition_size;
-    let mut tmp : Vec<usize>;
 
     for _num in 0..num_partitions {
-
+	    let mut tmp : Vec<usize> = Vec::new();
         // set our single_partition_size each time.
         single_partition_size = partition_size;
 
         // If there's a remainder we add one. We do this every time until we no longer have a remainder. 
-        if data_size % partition_size != 0{
+        if data_size % partition_size != 0 {
 
             //usize is basically an unsigned int, so it won't maintain the float. 
             single_partition_size += 1; 
@@ -209,23 +208,22 @@ fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>> {
         
         // track the data_size so we can continue to check whether we need to add one or not.
         data_size = data_size - single_partition_size;
-        
-        // Temp variable to allow us to create a new vector.
-        tmp = Vec::new();
 
         // i starts at whatever number array index is and then we have to control the index on the upper end.
-        for i in added_index..single_partition_size - 1 {
+        for i in added_index..single_partition_size {
             tmp.push(v[i]);
+            println!("I = {}", i);
         }
 
         // Track our total index size, since we start at zero we adjust the index
         added_index += single_partition_size;
 
+
         // If it's our first run we subtract one
         if added_index == single_partition_size {
             added_index -= 1;
         }
-
+        println!("added_index = {}", added_index);
         // Add the tmp vec to xs, our total vec
         xs.push(tmp);
     }
