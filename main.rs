@@ -150,18 +150,53 @@ fn main() {
 
     // CHANGE CODE: Add code that does the following:
     // 1. Calls partition_data to partition the data into equal partitions
-    // 2. Calls print_partition_info to print info on the partitions that have been created
-    // 3. Creates one thread per partition and uses each thread to concurrently process one partition
-    // 4. Collects the intermediate sums from all the threads
-    // 5. Prints information about the intermediate sums
-    // 5. Calls reduce_data to process the intermediate sums
-    // 6. Prints the final sum computed by reduce_data
-
     let partitions = partition_data(num_partitions, &v);
 
-
-    // Print info about the partitions
+    // 2. Calls print_partition_info to print info on the partitions that have been created
     print_partition_info(&partitions);
+
+    // 3. Creates one thread per partition and uses each thread to concurrently process one partition
+    /*
+    * Structure for spawning threads and getting their return value was adapted from <Rust By Example>
+    * (Threads) https://doc.rust-lang.org/rust-by-example/std_misc/threads.html I did change it a fair 
+    * bit to make it suit my needs but the structure was from there. 
+    */ 
+
+    // Vector for keeping thread handles in. 
+    let mut thread_tracker = vec![];
+
+    // Spawn as many threads as requested by the user 
+    for i in 0..num_partitions {
+
+      // clone the partion data so that we can move it to the spawned thread.
+      let current_partition = partitions[i].clone();
+
+      // Create a new thread which calls map_data on our copies partition and 
+      // push it's handle on to the thread_tracker vector
+      thread_tracker.push(thread::spawn(move || {map_data(&current_partition)}));
+    }
+
+    // Vector for storing the intermedite sum of each thread.
+    let mut intermediate_sums_2 : Vec<usize> = Vec::new();
+
+    // 4. Collects the intermediate sums from all the threads.
+    for handle in thread_tracker {
+
+        // Wait for the thread to finish and unwrap it's result.
+        let result = handle.join().unwrap();
+
+        // push the result onto the intermediate_sums_2 vector
+        intermediate_sums_2.push(result);
+    }
+
+    // 5. Prints information about the intermediate sums
+    println!("Intermediate sums = {:?}", intermediate_sums_2);
+
+    // 5. Calls reduce_data to process the intermediate sums
+    let sum = reduce_data(&intermediate_sums_2);
+
+    // 6. Prints the final sum computed by reduce_data
+    println!("Sum = {}", sum);
 }
 
 /*
@@ -219,14 +254,7 @@ fn partition_data(num_partitions: usize, v: &Vec<usize>) -> Vec<Vec<usize>> {
         // i starts at whatever number i is and goes until it hits the added index.
         while i < added_index {
             tmp.push(v[i]);
-
             i += 1;
-        }
-
-        // If it's our first run we subtract one from i and added_index.
-        if added_index == single_partition_size {
-            added_index -= 1;
-            i -= 1;
         }
 
         // Add the tmp vec to xs, our total vec
